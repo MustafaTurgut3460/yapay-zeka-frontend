@@ -202,7 +202,7 @@ function App() {
   const [name, setName] = useState("");
   const [joinTestCode, setJoinTestCode] = useState("");
   const [isTestStarted, setIsTestStarted] = useState(false);
-  const [testResult, setTestResult] = useState();
+  const [testResult, setTestResult] = useState(0);
   const [surveyData, setSurveyData] = useState<StudentFormType>({
     Age: 0,
     Class_Duration: 0,
@@ -802,7 +802,7 @@ function App() {
               <p className="text-xl mt-8">Uzaktan Eğitim Uygunluk Durumunuz</p>
               <div className="flex justify-center mt-4">
                 <div className="rounded-md border border-solid border-emerald-300 text-emerald-600 bg-emerald-100 py-2 px-8 text-center w-min">
-                  {testResult}
+                  {results[testResult-1]}
                 </div>
               </div>
 
