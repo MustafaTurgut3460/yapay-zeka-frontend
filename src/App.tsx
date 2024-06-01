@@ -188,6 +188,8 @@ const httpService = axios.create({
   },
 });
 
+const results = ["Kötü Seviye", "Orta Seviye", "İyi Seviye"]
+
 function App() {
   const [appMode, setAppMode] = useState("login"); // login, test_student, test_teacher, test_start_1, test_start_2, test_finish, test_start_teacher,
   const [testCodeCopy, setTestCodeCopy] = useState(false);
@@ -233,6 +235,8 @@ function App() {
       return;
     }
 
+    setLoading(true);
+
     const data = {
       test_code: joinTestCode,
       student: name,
@@ -249,25 +253,30 @@ function App() {
           });
         }
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e))
+      .finally(() => setLoading(false));
   };
 
   const isTestStartedFunc = () => {
+    setLoading(true);
     httpService
       .get(`/isTestStarted/${joinTestCode}`)
       .then((res) => {
         setIsTestStarted(res.data.isStarted);
       })
-      .catch((e) => setIsTestStarted(false));
+      .catch((e) => setIsTestStarted(false)).finally(() => setLoading(false));
   };
 
   const startTest = async () => {
+    setLoading(true);
     const res = await httpService.put(`/startTest/${randomTestCode}`);
 
     if (res.status === 200) {
       setIsTestStarted(true);
       setAppMode("test_start_teacher");
     }
+
+    setLoading(false);
 
     return setIsTestStarted(false);
   };
@@ -278,13 +287,15 @@ function App() {
       return;
     }
 
+    setLoading(true);
+
     httpService
       .post("survey", surveyData)
       .then((res) => {
         setTestResult(res.data.prediction);
         setAppMode("test_finish");
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e)).finally(() => setLoading(false));
   };
 
   const createTest = () => {
@@ -314,15 +325,17 @@ function App() {
   };
 
   const getStudents = () => {
+    setLoading(true);
     httpService
       .get(`/testInfos/${randomTestCode}`)
       .then((res) => {
         setStudents(res.data?.students);
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e)).finally(() => setLoading(false));
   };
 
   const updateStudentStatistics = () => {
+    setLoading(true);
     httpService
       .get(`/testInfos/${randomTestCode}`)
       .then((res) => {
@@ -333,7 +346,7 @@ function App() {
         });
         setStudents(res.data.students);
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e)).finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -394,6 +407,7 @@ function App() {
                 block
                 size="large"
                 onClick={joinTest}
+                loading={loading}
               >
                 Teste Gir
               </Button>
@@ -448,6 +462,7 @@ function App() {
                 block
                 onClick={() => setAppMode("test_start_1")}
                 disabled={!isTestStarted}
+                loading={loading}
               >
                 Teste Gir!
               </Button>
@@ -471,7 +486,7 @@ function App() {
                       icon={"streamline:copy-paste"}
                       className="text-gray-400 hover:text-gray-500 cursor-pointer text-xl"
                       onClick={async () => {
-                        await navigator.clipboard.writeText("code");
+                        await navigator.clipboard.writeText(randomTestCode);
                         setTestCodeCopy(true);
                       }}
                     />
@@ -500,7 +515,7 @@ function App() {
                   >
                     İptal Et
                   </Button>
-                  <Button block type="primary" size="large" onClick={startTest}>
+                  <Button block type="primary" size="large" onClick={startTest} loading={loading}>
                     Testi Başlat
                   </Button>
                 </div>
@@ -765,6 +780,7 @@ function App() {
                     size="large"
                     type="primary"
                     onClick={finishTest}
+                    loading={loading}
                   >
                     {appMode === "test_start_1" ? "Sonraki" : "Testi Tamamla"}
                   </Button>
@@ -796,6 +812,7 @@ function App() {
                 size="large"
                 className="mt-10"
                 onClick={() => setAppMode("login")}
+                loading={loading}
               >
                 Ana Sayfaya Dön
               </Button>
@@ -819,7 +836,7 @@ function App() {
                       icon={"streamline:copy-paste"}
                       className="text-gray-400 hover:text-gray-500 cursor-pointer text-xl"
                       onClick={async () => {
-                        await navigator.clipboard.writeText("code");
+                        await navigator.clipboard.writeText(randomTestCode);
                         setTestCodeCopy(true);
                       }}
                     />
@@ -899,6 +916,7 @@ function App() {
                   size="large"
                   type="primary"
                   onClick={() => setAppMode("login")}
+                  loading={loading}
                 >
                   Testi Sonlandır
                 </Button>
